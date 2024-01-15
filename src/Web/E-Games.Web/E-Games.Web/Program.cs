@@ -1,6 +1,7 @@
 using E_Games.Data.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 
@@ -12,27 +13,14 @@ namespace E_Games.Web
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
             builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
-
             builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
-
-            /* commented out as shown
-             * https://learn.microsoft.com/en-us/aspnet/core/security/authentication/scaffold-identity?view=aspnetcore-5.0&tabs=visual-studio
-            
-            builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(connectionString));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-
-            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
-            */
-
-            builder.Services.AddRazorPages();
-
-            builder.Services.Configure<IdentityOptions>(options => {
+            builder.Services.Configure<IdentityOptions>(options =>
+            {
                 options.Password.RequireDigit = true;
                 options.Password.RequireLowercase = true;
                 options.Password.RequireNonAlphanumeric = true;
@@ -40,12 +28,10 @@ namespace E_Games.Web
                 options.Password.RequiredLength = 6;
                 options.Password.RequiredUniqueChars = 1;
 
-                // Lockout settings.
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
                 options.Lockout.MaxFailedAccessAttempts = 5;
                 options.Lockout.AllowedForNewUsers = true;
 
-                // User settings.
                 options.User.AllowedUserNameCharacters =
                 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
                 options.User.RequireUniqueEmail = false;
@@ -53,7 +39,6 @@ namespace E_Games.Web
 
             builder.Services.ConfigureApplicationCookie(options =>
             {
-                // Cookie settings
                 options.Cookie.HttpOnly = true;
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
 
@@ -68,8 +53,10 @@ namespace E_Games.Web
             builder.Services.AddHealthChecks();
             //builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-            builder.Services.AddSwaggerGen(options => {
-                options.SwaggerDoc("v1", new OpenApiInfo { 
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
                     Version = "v1",
                     Title = "My API",
                     Description = "ASP.NET Web Api",
@@ -93,7 +80,6 @@ namespace E_Games.Web
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseMigrationsEndPoint();
@@ -103,7 +89,6 @@ namespace E_Games.Web
             else
             {
                 app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
@@ -115,21 +100,20 @@ namespace E_Games.Web
             app.UseAuthentication();
             app.UseAuthorization();
 
-            // app.MapRazorPages();
+            app.MapControllers();
 
-            app.UseEndpoints(endpoints =>
+            app.MapGet("/health", async (HttpContext httpContext, HealthCheckService healthCheckService) =>
             {
-                // default route for not showing "not found" on main page after removing ASP pages initial setup
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
-
-                endpoints.MapControllers();
-            });
-
-            // https://localhost:{port}/health
-            app.UseEndpoints(endpoints => {
-                endpoints.MapHealthChecks("/health");
+                var report = await healthCheckService.CheckHealthAsync();
+                if (report.Status == HealthStatus.Healthy)
+                {
+                    await httpContext.Response.WriteAsync("Healthy");
+                }
+                else
+                {
+                    httpContext.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+                    await httpContext.Response.WriteAsync("Unhealthy");
+                }
             });
 
             app.Run();
