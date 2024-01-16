@@ -4,11 +4,11 @@ namespace E_Games.Web.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> logger;
+        private readonly ILogger<HomeController> _logger;
 
         public HomeController(ILogger<HomeController> logger)
         {
-            this.logger = logger;
+            _logger = logger;
         }
 
         [HttpGet("/")]
@@ -20,7 +20,7 @@ namespace E_Games.Web.Controllers
         [HttpGet("/Home/GetInfo")]
         public string GetInfo()
         {
-            this.logger.LogInformation("GetInfo action was called!");
+            _logger.LogInformation("GetInfo action was called!");
 
             return "Hello world";
         }
