@@ -1,8 +1,10 @@
 using E_Games.Data.Data;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using System.Reflection;
 
 namespace E_Games.Web
@@ -41,9 +43,6 @@ namespace E_Games.Web
             {
                 options.Cookie.HttpOnly = true;
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
-
-                options.LoginPath = "/Identity/Account/Login";
-                options.AccessDeniedPath = "/Identity/Account/AccessDenied";
                 options.SlidingExpiration = true;
             });
 
@@ -78,6 +77,8 @@ namespace E_Games.Web
                 options.IncludeXmlComments(xmlPath);
             });
 
+            builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
+
             var app = builder.Build();
 
             if (app.Environment.IsDevelopment())
@@ -88,7 +89,20 @@ namespace E_Games.Web
             }
             else
             {
-                app.UseExceptionHandler("/Error");
+                app.UseExceptionHandler(builder =>
+                {
+                    builder.Run(context =>
+                    {
+                        context.Response.StatusCode = 500;
+                        var excpHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+
+                        if (excpHandlerPathFeature?.Error != null)
+                        {
+                            Log.Error(excpHandlerPathFeature.Error, "Global exception caught");
+                        }
+                        return Task.CompletedTask;
+                    });
+                });
                 app.UseHsts();
             }
 
