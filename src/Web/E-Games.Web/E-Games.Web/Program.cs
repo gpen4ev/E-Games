@@ -1,17 +1,22 @@
 using E_Games.Data.Data;
+using E_Games.Data.Data.Models;
+using E_Games.Services.E_Games.Services;
+using E_Games.Services.E_Games.Services.Configuration;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Reflection;
+using IEmailSender = E_Games.Services.E_Games.Services.IEmailSender;
 
 namespace E_Games.Web
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +24,12 @@ namespace E_Games.Web
                 ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
             builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
-            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
+
+            builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+                .AddRoles<IdentityRole<Guid>>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
             builder.Services.Configure<IdentityOptions>(options =>
             {
@@ -44,13 +54,19 @@ namespace E_Games.Web
                 options.Cookie.HttpOnly = true;
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
                 options.SlidingExpiration = true;
+
+                options.AccessDeniedPath = new PathString("/AccessDenied");
             });
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
             builder.Services.AddHealthChecks();
-            //builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            //builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());            
+
+            builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
+            builder.Services.AddSingleton<IValidateOptions<SmtpSettings>, SmtpConfigurationValidation>();
+
+            builder.Services.AddTransient<IEmailSender, EmailSender>();
 
             builder.Services.AddSwaggerGen(options =>
             {
@@ -129,6 +145,22 @@ namespace E_Games.Web
                     await httpContext.Response.WriteAsync("Unhealthy");
                 }
             });
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var roleManager =
+                    scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+
+                var roles = new[] { "Admin", "User" };
+
+                foreach (var role in roles)
+                {
+                    if (!await roleManager.RoleExistsAsync(role))
+                    {
+                        await roleManager.CreateAsync(new IdentityRole<Guid>(role));
+                    }
+                }
+            }
 
             app.Run();
         }

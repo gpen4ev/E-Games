@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace E_Games.Web.Controllers
 {
@@ -17,6 +18,7 @@ namespace E_Games.Web.Controllers
             return "Welcome to the Home page!";
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("/Home/GetInfo")]
         public string GetInfo()
         {
