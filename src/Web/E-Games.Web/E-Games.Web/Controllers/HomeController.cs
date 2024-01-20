@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace E_Games.Web.Controllers
 {
+    [Route("api/[controller]")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -28,3 +29,8 @@ namespace E_Games.Web.Controllers
         }
     }
 }
+
+/*
+ Redirecting issue when using an Authorize attribute workaround
+ https://github.com/dotnet/aspnetcore/issues/9039
+*/

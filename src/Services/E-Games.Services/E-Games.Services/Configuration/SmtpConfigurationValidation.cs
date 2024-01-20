@@ -13,12 +13,30 @@ namespace E_Games.Services.E_Games.Services.Configuration
                 errors.Add($"'{nameof(options.Server)}' must be provided.");
             }
 
-            if (string.IsNullOrEmpty(options.Username))
+            if (options.Port < 1 || options.Port > 65535)
             {
-                return ValidateOptionsResult.Fail("Username is a required field");
+                errors.Add($"'{nameof(options.Port)}' must be between 1 and 65535.");
             }
 
-            // TODO: add other validations as necessary
+            if (string.IsNullOrEmpty(options.Username))
+            {
+                errors.Add("Username is a required field.");
+            }
+
+            if (string.IsNullOrEmpty(options.Password))
+            {
+                errors.Add("Password is a required filed.");
+            }
+
+            if (string.IsNullOrEmpty(options.SenderName) || !IsValidEmail(options.SenderEmail!))
+            {
+                errors.Add($"'{nameof(options.SenderEmail)}' must be a valid email address.");
+            }
+
+            if (string.IsNullOrEmpty(options.SenderName))
+            {
+                errors.Add($"'{nameof(options.SenderName)}' is a required field.");
+            }
 
             if (errors.Any())
             {
@@ -26,6 +44,19 @@ namespace E_Games.Services.E_Games.Services.Configuration
             }
 
             return ValidateOptionsResult.Success;
+        }
+
+        private bool IsValidEmail(string email)
+        {
+            try
+            {
+                var address = new System.Net.Mail.MailAddress(email);
+                return address.Address == email;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

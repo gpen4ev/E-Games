@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace E_Games.Web.Controllers
 {
-    [Route("api/auth")]
     [ApiController]
+    [Route("api/auth")]
     public class AuthController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -26,7 +26,7 @@ namespace E_Games.Web.Controllers
 
         [HttpPost("signIn")]
         [AllowAnonymous]
-        public async Task<IActionResult> SignIn([FromBody] SignModel model)
+        public async Task<IActionResult> SignInAsync([FromBody] SignModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -48,6 +48,7 @@ namespace E_Games.Web.Controllers
             if (user != null)
             {
                 var result = await _signInManager.PasswordSignInAsync(user, model.Password, isPersistent: false, lockoutOnFailure: false);
+
                 if (result.Succeeded)
                 {
                     return Ok(new { Message = "Sign in successful" });
@@ -59,7 +60,7 @@ namespace E_Games.Web.Controllers
 
         [HttpPost("signUp")]
         [AllowAnonymous]
-        public async Task<IActionResult> SignUp([FromBody] SignModel model)
+        public async Task<IActionResult> SignUpAsync([FromBody] SignModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -83,9 +84,13 @@ namespace E_Games.Web.Controllers
             {
                 var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-                var callbackUrl = Url.Action(nameof(EmailConfirm),
+                var callbackUrl = Url.Action(nameof(EmailConfirmAsync),
                     "Auth", new { userId = user.Id, token = token },
                     protocol: HttpContext.Request.Scheme);
+
+                await _emailSender.SendEmailAsync(user.Email,
+                    "Confirm your email",
+                    $"Please confirm your account by <a href='{callbackUrl}'>clicking here</a>.");
 
                 return StatusCode(StatusCodes.Status201Created);
             }
@@ -95,7 +100,7 @@ namespace E_Games.Web.Controllers
 
         [HttpGet("emailConfirm")]
         [AllowAnonymous]
-        public async Task<IActionResult> EmailConfirm(string userId, string token)
+        public async Task<IActionResult> EmailConfirmAsync(string userId, string token)
         {
             if (string.IsNullOrWhiteSpace(userId))
             {

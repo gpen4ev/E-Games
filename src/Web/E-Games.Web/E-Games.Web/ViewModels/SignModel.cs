@@ -11,7 +11,8 @@ namespace E_Games.Web.ViewModels
 
         [Required(ErrorMessage = "Password is required")]
         [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$",
-        ErrorMessage = "Password must be at least 8 characters long and have at least one uppercase letter, a lowercase letter, a digit, and a special character.")]
+            ErrorMessage = "Password must be at least 8 characters long and have at least one uppercase letter, " +
+            "a lowercase letter, a digit, and a special character.")]
         public string? Password { get; set; }
     }
 }
