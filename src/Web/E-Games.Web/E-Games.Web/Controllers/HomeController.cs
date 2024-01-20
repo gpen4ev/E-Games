@@ -23,6 +23,7 @@ namespace E_Games.Web.Controllers
         [HttpGet("/Home/GetInfo")]
         public string GetInfo()
         {
+            // var roles = User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
             _logger.LogInformation("GetInfo action was called!");
 
             return "Hello world";

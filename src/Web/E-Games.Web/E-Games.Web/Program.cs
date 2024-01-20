@@ -2,6 +2,7 @@ using E_Games.Data.Data;
 using E_Games.Data.Data.Models;
 using E_Games.Services.E_Games.Services;
 using E_Games.Services.E_Games.Services.Configuration;
+using E_Games.Web.Infrastructure;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -101,6 +102,8 @@ namespace E_Games.Web
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 options.IncludeXmlComments(xmlPath);
+
+                options.SchemaFilter<CustomSchemaFilter>();
             });
 
             builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
@@ -158,18 +161,7 @@ namespace E_Games.Web
 
             using (var scope = app.Services.CreateScope())
             {
-                var roleManager =
-                    scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
-
-                var roles = new[] { "Admin", "User" };
-
-                foreach (var role in roles)
-                {
-                    if (!await roleManager.RoleExistsAsync(role))
-                    {
-                        await roleManager.CreateAsync(new IdentityRole<Guid>(role));
-                    }
-                }
+                await RoleSeeder.SeedRoleAsync(scope.ServiceProvider);
             }
 
             app.Run();

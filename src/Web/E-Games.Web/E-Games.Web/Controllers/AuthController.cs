@@ -33,21 +33,17 @@ namespace E_Games.Web.Controllers
                 return BadRequest(ModelState);
             }
 
-            if (string.IsNullOrEmpty(model.Email))
+            var validateModel = ValidateModel(model);
+            if (validateModel != null)
             {
-                return BadRequest(new { Message = "Email is required" });
+                return validateModel;
             }
 
-            if (string.IsNullOrEmpty(model.Password))
-            {
-                return BadRequest(new { Message = "Password is required" });
-            }
-
-            var user = await _userManager.FindByEmailAsync(model.Email);
+            var user = await _userManager.FindByEmailAsync(model.Email!);
 
             if (user != null)
             {
-                var result = await _signInManager.PasswordSignInAsync(user, model.Password, isPersistent: false, lockoutOnFailure: false);
+                var result = await _signInManager.PasswordSignInAsync(user, model.Password!, isPersistent: false, lockoutOnFailure: false);
 
                 if (result.Succeeded)
                 {
@@ -67,18 +63,14 @@ namespace E_Games.Web.Controllers
                 return BadRequest(ModelState);
             }
 
-            if (string.IsNullOrEmpty(model.Email))
+            var validateModel = ValidateModel(model);
+            if (validateModel != null)
             {
-                return BadRequest(new { Message = "Email is required" });
-            }
-
-            if (string.IsNullOrEmpty(model.Password))
-            {
-                return BadRequest(new { Message = "Password is required" });
+                return validateModel;
             }
 
             var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
-            var result = await _userManager.CreateAsync(user, model.Password);
+            var result = await _userManager.CreateAsync(user, model.Password!);
 
             if (result.Succeeded)
             {
@@ -88,7 +80,7 @@ namespace E_Games.Web.Controllers
                     "Auth", new { userId = user.Id, token = token },
                     protocol: HttpContext.Request.Scheme);
 
-                await _emailSender.SendEmailAsync(user.Email,
+                await _emailSender.SendEmailAsync(user.Email!,
                     "Confirm your email",
                     $"Please confirm your account by <a href='{callbackUrl}'>clicking here</a>.");
 

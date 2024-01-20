@@ -24,6 +24,7 @@ namespace E_Games.Tests
 
             userManagerMock.Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
                 .ReturnsAsync(IdentityResult.Success);
+
             userManagerMock.Setup(x => x.GenerateEmailConfirmationTokenAsync(It.IsAny<ApplicationUser>()))
                 .ReturnsAsync("confirmation-token");
 
@@ -36,11 +37,12 @@ namespace E_Games.Tests
                 .Returns("callback-url");
 
             var httpContext = new DefaultHttpContext();
-            var controllerContext = new ControllerContext() { HttpContext = httpContext };
-            var authController = new AuthController(
-                userManagerMock.Object,
-                null!,
-                emailSenderMock.Object)
+            var controllerContext = new ControllerContext()
+            {
+                HttpContext = httpContext
+            };
+
+            var authController = new AuthController(userManagerMock.Object, null!, emailSenderMock.Object)
             {
                 ControllerContext = controllerContext,
                 Url = urlHelperMock.Object
@@ -124,7 +126,6 @@ namespace E_Games.Tests
             var emailSenderMock = new Mock<IEmailSender>();
 
             var authController = new AuthController(userManagerMock.Object, signInManagerMock.Object, emailSenderMock.Object);
-
             authController.ModelState.AddModelError("TestError", "This is a test error");
 
             var signUpModel = new SignModel();
@@ -190,7 +191,12 @@ namespace E_Games.Tests
                 new Mock<IUserStore<ApplicationUser>>().Object,
                 null!, null!, null!, null!, null!, null!, null!, null!);
 
-            var user = new ApplicationUser { UserName = "testuser@example.com", Email = "testuser@example.com" };
+            var user = new ApplicationUser
+            {
+                UserName = "testuser@example.com",
+                Email = "testuser@example.com"
+            };
+
             userManagerMock.Setup(x => x.FindByEmailAsync("testuser@example.com"))
                 .ReturnsAsync(user);
 
@@ -234,7 +240,7 @@ namespace E_Games.Tests
                 null!, null!, null!, null!, null!, null!, null!, null!);
 
             userManagerMock.Setup(x => x.FindByEmailAsync("testuser@example.com"))
-                .ReturnsAsync((ApplicationUser)null!); // User not found
+                .ReturnsAsync((ApplicationUser)null!);
 
             var signInManagerMock = new Mock<SignInManager<ApplicationUser>>(
                 userManagerMock.Object,
