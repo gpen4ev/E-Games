@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace E_Games.Web.Controllers
 {
+    [Route("api/[controller]")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -17,6 +19,7 @@ namespace E_Games.Web.Controllers
             return "Welcome to the Home page!";
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("/Home/GetInfo")]
         public string GetInfo()
         {
