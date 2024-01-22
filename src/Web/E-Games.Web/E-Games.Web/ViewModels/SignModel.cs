@@ -6,7 +6,6 @@ namespace E_Games.Web.ViewModels
     {
         [Required(ErrorMessage = "Email is required")]
         [EmailAddress(ErrorMessage = "Invalid email format")]
-        // [RegularExpression("", ErrorMessage = "Invalid email format")] not recommended to use reg exp. for emails
         public string? Email { get; set; }
 
         [Required(ErrorMessage = "Password is required")]

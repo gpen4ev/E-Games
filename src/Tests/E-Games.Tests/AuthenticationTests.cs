@@ -140,50 +140,6 @@ namespace E_Games.Tests
         }
 
         [Fact]
-        public async Task SignUp_MissingEmail_ReturnsBadRequest()
-        {
-            // Arrange
-            var authController = new AuthController(null!, null!, null!);
-
-            var signUpModel = new SignModel
-            {
-                Password = "TestPassword123!"
-            };
-
-            // Act
-            var result = await authController.SignUpAsync(signUpModel);
-
-            // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            var jObjectValue = JObject.FromObject(badRequestResult.Value!);
-            var message = jObjectValue["Message"]?.ToString();
-
-            Assert.Equal("Email is required", message);
-        }
-
-        [Fact]
-        public async Task SignUp_MissingPassword_ReturnsBadRequest()
-        {
-            // Arrange
-            var authController = new AuthController(null!, null!, null!);
-
-            var signUpModel = new SignModel
-            {
-                Email = "testuser@example.com"
-            };
-
-            // Act
-            var result = await authController.SignUpAsync(signUpModel);
-
-            // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            var jObjectValue = JObject.FromObject(badRequestResult.Value!);
-            var message = jObjectValue["Message"]?.ToString();
-
-            Assert.Equal("Password is required", message);
-        }
-
-        [Fact]
         public async Task SignIn_UserLogsIn_ReturnsSuccess()
         {
             // Arrange
@@ -295,50 +251,6 @@ namespace E_Games.Tests
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             Assert.NotNull(badRequestResult.Value);
-        }
-
-        [Fact]
-        public async Task SignIn_MissingEmail_ReturnsBadRequest()
-        {
-            // Arrange
-            var authController = new AuthController(null!, null!, null!);
-
-            var signInModel = new SignModel
-            {
-                Password = "TestPassword123!"
-            };
-
-            // Act
-            var result = await authController.SignInAsync(signInModel);
-
-            // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            var jObjectValue = JObject.FromObject(badRequestResult.Value!);
-            var message = jObjectValue["Message"]?.ToString();
-
-            Assert.Equal("Email is required", message);
-        }
-
-        [Fact]
-        public async Task SignIn_MissingPassword_ReturnsBadRequest()
-        {
-            // Arrange
-            var authController = new AuthController(null!, null!, null!);
-
-            var signInModel = new SignModel
-            {
-                Email = "testuser@example.com"
-            };
-
-            // Act
-            var result = await authController.SignInAsync(signInModel);
-
-            // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            var jObjectValue = JObject.FromObject(badRequestResult.Value!);
-            var message = jObjectValue["Message"]?.ToString();
-
-            Assert.Equal("Password is required", message);
         }
     }
 }

@@ -33,12 +33,6 @@ namespace E_Games.Web.Controllers
                 return BadRequest(ModelState);
             }
 
-            var validateModel = ValidateModel(model);
-            if (validateModel != null)
-            {
-                return validateModel;
-            }
-
             var user = await _userManager.FindByEmailAsync(model.Email!);
 
             if (user != null)
@@ -63,26 +57,27 @@ namespace E_Games.Web.Controllers
                 return BadRequest(ModelState);
             }
 
-            var validateModel = ValidateModel(model);
-            if (validateModel != null)
-            {
-                return validateModel;
-            }
-
             var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
             var result = await _userManager.CreateAsync(user, model.Password!);
 
             if (result.Succeeded)
             {
-                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                try
+                {
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-                var callbackUrl = Url.Action(nameof(EmailConfirmAsync),
-                    "Auth", new { userId = user.Id, token = token },
-                    protocol: HttpContext.Request.Scheme);
+                    var callbackUrl = Url.Action(nameof(EmailConfirmAsync),
+                        "Auth", new { userId = user.Id, token = token },
+                        protocol: HttpContext.Request.Scheme);
 
-                await _emailSender.SendEmailAsync(user.Email!,
-                    "Confirm your email",
-                    $"Please confirm your account by <a href='{callbackUrl}'>clicking here</a>.");
+                    await _emailSender.SendEmailAsync(user.Email!,
+                        "Confirm your email",
+                        $"Please confirm your account by <a href='{callbackUrl}'>clicking here</a>.");
+                }
+                catch (Exception ex)
+                {
+                    return Ok(new { Message = "User registered successfully, but we could not send a confirmation email." });
+                }
 
                 return StatusCode(StatusCodes.Status201Created);
             }
@@ -94,16 +89,6 @@ namespace E_Games.Web.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> EmailConfirmAsync(string userId, string token)
         {
-            if (string.IsNullOrWhiteSpace(userId))
-            {
-                return BadRequest(new { Message = "Invalid user ID" });
-            }
-
-            if (string.IsNullOrWhiteSpace(token))
-            {
-                return BadRequest(new { Message = "Invalid confirmation token" });
-            }
-
             var user = await _userManager.FindByIdAsync(userId);
 
             if (user == null)
@@ -119,21 +104,6 @@ namespace E_Games.Web.Controllers
             }
 
             return BadRequest(new { Errors = result.Errors.Select(e => e.Description) });
-        }
-
-        private IActionResult? ValidateModel(SignModel model)
-        {
-            if (string.IsNullOrEmpty(model.Email))
-            {
-                return BadRequest(new { Message = "Email is required" });
-            }
-
-            if (string.IsNullOrEmpty(model.Password))
-            {
-                return BadRequest(new { Message = "Password is required" });
-            }
-
-            return null;
         }
     }
 }

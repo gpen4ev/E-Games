@@ -11,7 +11,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Reflection;
-using IEmailSender = E_Games.Services.E_Games.Services.IEmailSender;
 
 namespace E_Games.Web
 {
@@ -76,7 +75,6 @@ namespace E_Games.Web
 
             builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
             builder.Services.AddSingleton<IValidateOptions<SmtpSettings>, SmtpConfigurationValidation>();
-
             builder.Services.AddTransient<IEmailSender, EmailSender>();
 
             builder.Services.AddSwaggerGen(options =>
