@@ -59,7 +59,7 @@ namespace E_Games.Tests
         }
 
         [Fact]
-        public void UserProfileModel_Properties_ShouldSetAndGet()
+        public void UserProfileModel_Properties_Validation()
         {
             // Arrange
             var model = new UserProfileModel
