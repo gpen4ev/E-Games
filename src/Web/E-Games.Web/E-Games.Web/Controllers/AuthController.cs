@@ -74,7 +74,7 @@ namespace E_Games.Web.Controllers
                         "Confirm your email",
                         $"Please confirm your account by <a href='{callbackUrl}'>clicking here</a>.");
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     return Ok(new { Message = "User registered successfully, but we could not send a confirmation email." });
                 }

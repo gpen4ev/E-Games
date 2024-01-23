@@ -15,7 +15,7 @@ namespace E_Games.Tests
     public class AuthenticationTests
     {
         [Fact]
-        public async Task SignUp_UserRegisters_ReturnsSuccess()
+        public async Task SignUpAsync_UserRegisters_ReturnsSuccess()
         {
             // Arrange
             var userManagerMock = new Mock<UserManager<ApplicationUser>>(
@@ -66,7 +66,7 @@ namespace E_Games.Tests
         }
 
         [Fact]
-        public async Task SignUp_RegistrationFails_ReturnsBadRequest()
+        public async Task SignUpAsync_RegistrationFails_ReturnsBadRequest()
         {
             // Arrange
             var userManagerMock = new Mock<UserManager<ApplicationUser>>(
@@ -110,7 +110,7 @@ namespace E_Games.Tests
         }
 
         [Fact]
-        public async Task SignUp_InvalidModelState_ReturnsBadRequest()
+        public async Task SignUpAsync_InvalidModelState_ReturnsBadRequest()
         {
             // Arrange
             var userManagerMock = new Mock<UserManager<ApplicationUser>>(
@@ -140,7 +140,7 @@ namespace E_Games.Tests
         }
 
         [Fact]
-        public async Task SignIn_UserLogsIn_ReturnsSuccess()
+        public async Task SignInAsync_UserLogsIn_ReturnsSuccess()
         {
             // Arrange
             var userManagerMock = new Mock<UserManager<ApplicationUser>>(
@@ -188,7 +188,7 @@ namespace E_Games.Tests
         }
 
         [Fact]
-        public async Task SignIn_InvalidCredentials_ReturnsUnauthorized()
+        public async Task SignInAsync_InvalidCredentials_ReturnsUnauthorized()
         {
             // Arrange
             var userManagerMock = new Mock<UserManager<ApplicationUser>>(
@@ -227,7 +227,7 @@ namespace E_Games.Tests
         }
 
         [Fact]
-        public async Task SignIn_InvalidModelState_ReturnsBadRequest()
+        public async Task SignInAsync_InvalidModelState_ReturnsBadRequest()
         {
             // Arrange
             var userManagerMock = new Mock<UserManager<ApplicationUser>>(
