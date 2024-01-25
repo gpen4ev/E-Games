@@ -1,7 +1,9 @@
-﻿using E_Games.Data.Data.Models;
+﻿using AutoMapper;
+using E_Games.Common;
+using E_Games.Common.DTOs;
+using E_Games.Services.E_Games.Services;
 using E_Games.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -11,11 +13,13 @@ namespace E_Games.Web.Controllers
     [Route("api/user")]
     public class UserController : ControllerBase
     {
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IUserService _userService;
+        private readonly IMapper _mapper;
 
-        public UserController(UserManager<ApplicationUser> userManager)
+        public UserController(IUserService userService, IMapper mapper)
         {
-            _userManager = userManager;
+            _userService = userService;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -23,19 +27,7 @@ namespace E_Games.Web.Controllers
         public async Task<IActionResult> UserProfile()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = await _userManager.FindByIdAsync(userId!);
-
-            if (user == null)
-            {
-                return NotFound(new { Message = "User not found" });
-            }
-
-            var userProfile = new UserProfileModel()
-            {
-                Email = user.Email,
-                PhoneNumber = user.PhoneNumber,
-                AddressDelivery = user.AddressDelivery
-            };
+            var userProfile = await _userService.GetUserProfileAsync(userId!);
 
             return Ok(userProfile);
         }
@@ -50,25 +42,18 @@ namespace E_Games.Web.Controllers
             }
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = await _userManager.FindByIdAsync(userId!);
+            var updateDto = _mapper.Map<UpdateUserModelDto>(model);
 
-            if (user == null)
+            try
             {
-                return NotFound(new { Message = "User not found" });
+                var updatedUserDto = await _userService.UpdateProfileAsync(userId!, updateDto);
+
+                return Ok(updatedUserDto);
             }
-
-            user.UserName = model.UserName;
-            user.PhoneNumber = model.PhoneNumber;
-            user.AddressDelivery = model.AddressDelivery;
-
-            var result = await _userManager.UpdateAsync(user);
-
-            if (!result.Succeeded)
+            catch (ApiExceptionBase ex)
             {
-                return BadRequest(result.Errors);
+                return StatusCode(ex.StatusCode, ex.Message);
             }
-
-            return Ok(new { user.Id, user.Email, user.PhoneNumber, user.AddressDelivery });
         }
 
         [HttpPatch("password")]
@@ -81,28 +66,17 @@ namespace E_Games.Web.Controllers
             }
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = await _userManager.FindByIdAsync(userId!);
+            var updateDto = _mapper.Map<UpdatePasswordModelDto>(model);
 
-            if (user == null)
+            try
             {
-                return NotFound(new { Message = "User not found" });
+                await _userService.UpdatePasswordAsync(userId!, updateDto);
+                return NoContent();
             }
-
-            var checkPassword = await _userManager.CheckPasswordAsync(user, model.CurrentPassword!);
-
-            if (!checkPassword)
+            catch (ApiExceptionBase ex)
             {
-                return BadRequest(new { Message = "Current password is not correct" });
+                return StatusCode(ex.StatusCode, ex.Message);
             }
-
-            var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword!, model.NewPassword!);
-
-            if (!result.Succeeded)
-            {
-                return BadRequest(result.Errors);
-            }
-
-            return NoContent();
         }
     }
 }

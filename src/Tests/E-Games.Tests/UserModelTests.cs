@@ -6,7 +6,7 @@ namespace E_Games.Tests
     public class UserModelTests
     {
         private ValidationContext? _validationContext;
-        private readonly List<ValidationResult> _validationResult;
+        private List<ValidationResult> _validationResult;
 
         public UserModelTests()
         {
@@ -14,20 +14,23 @@ namespace E_Games.Tests
         }
 
         [Theory]
-        [InlineData("+12345678901", "123 Street")]
-        [InlineData("1234567890", "123 Street")]
-        [InlineData("invalidPhoneNumber", "123 Street", false)]
-        [InlineData("+12345678901", "", false)]
-        public void UpdateUserModel_Validation(string phoneNumber, string address, bool isValid = true)
+        [InlineData("+12345678901", "123 Street", "TestUser")]
+        [InlineData("1234567890", "123 Street", "TestUser")]
+        [InlineData("invalidPhoneNumber", "123 Street", "TestUser", false)]
+        [InlineData("+12345678901", "", "TestUser", false)]
+        [InlineData("+12345678901", "123 Street", "", false)]
+        public void UpdateUserModel_Validation(string phoneNumber, string address, string userName, bool isValid = true)
         {
             // Arrange
             var model = new UpdateUserModel
             {
+                UserName = userName,
                 PhoneNumber = phoneNumber,
                 AddressDelivery = address
             };
 
             _validationContext = new ValidationContext(model);
+            _validationResult = new List<ValidationResult>();
 
             // Act
             var validateObject = Validator.TryValidateObject(model, _validationContext, _validationResult, true);

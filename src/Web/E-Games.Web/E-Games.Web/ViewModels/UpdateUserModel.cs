@@ -4,6 +4,7 @@ namespace E_Games.Web.ViewModels
 {
     public class UpdateUserModel
     {
+        [Required]
         public string? UserName { get; set; }
 
         [Required]
