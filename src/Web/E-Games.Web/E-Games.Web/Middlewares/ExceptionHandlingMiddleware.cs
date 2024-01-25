@@ -21,6 +21,8 @@ namespace E_Games.Web.Middlewares
             }
             catch (ApiExceptionBase ex)
             {
+                _logger.LogError(ex, "An API exception occurred.");
+
                 httpContext.Response.ContentType = "application/json";
                 httpContext.Response.StatusCode = ex.StatusCode;
 
