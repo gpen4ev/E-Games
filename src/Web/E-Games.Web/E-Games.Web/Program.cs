@@ -3,6 +3,7 @@ using E_Games.Data.Data.Models;
 using E_Games.Services.E_Games.Services;
 using E_Games.Services.E_Games.Services.Configuration;
 using E_Games.Web.Infrastructure;
+using E_Games.Web.Middlewares;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +26,7 @@ namespace E_Games.Web
 
             builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
 
-            builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddRoles<IdentityRole<Guid>>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
@@ -71,11 +72,12 @@ namespace E_Games.Web
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddHealthChecks();
-            //builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());            
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
             builder.Services.AddSingleton<IValidateOptions<SmtpSettings>, SmtpConfigurationValidation>();
             builder.Services.AddTransient<IEmailSender, EmailSender>();
+            builder.Services.AddScoped<IUserService, UserService>();
 
             builder.Services.AddSwaggerGen(options =>
             {
@@ -130,8 +132,12 @@ namespace E_Games.Web
                         return Task.CompletedTask;
                     });
                 });
+
+                app.UseExceptionHandlingMiddleware();
                 app.UseHsts();
             }
+
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

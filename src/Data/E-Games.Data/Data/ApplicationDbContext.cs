@@ -7,8 +7,6 @@ namespace E_Games.Data.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
     {
-        public ApplicationDbContext() { }
-
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options) { }
     }
