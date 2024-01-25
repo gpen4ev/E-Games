@@ -6,6 +6,7 @@ using E_Games.Web.Controllers;
 using E_Games.Web.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Moq;
 using System.Security.Claims;
 
@@ -19,8 +20,9 @@ namespace E_Games.Tests
             // Arrange
             var mockUserService = new Mock<IUserService>();
             var mockMapper = new Mock<IMapper>();
+            var mockLogger = new Mock<ILogger<UserController>>();
 
-            var controller = new UserController(mockUserService.Object, mockMapper.Object);
+            var controller = new UserController(mockUserService.Object, mockMapper.Object, mockLogger.Object);
             var userId = Guid.NewGuid().ToString();
 
             var testProfile = new UserProfileModelDto();
@@ -52,8 +54,9 @@ namespace E_Games.Tests
             // Arrange
             var mockUserService = new Mock<IUserService>();
             var mockMapper = new Mock<IMapper>();
+            var mockLogger = new Mock<ILogger<UserController>>();
 
-            var controller = new UserController(mockUserService.Object, mockMapper.Object);
+            var controller = new UserController(mockUserService.Object, mockMapper.Object, mockLogger.Object);
 
             var userId = Guid.NewGuid().ToString();
 
@@ -82,8 +85,9 @@ namespace E_Games.Tests
             // Arrange
             var mockUserService = new Mock<IUserService>();
             var mockMapper = new Mock<IMapper>();
+            var mockLogger = new Mock<ILogger<UserController>>();
 
-            var controller = new UserController(mockUserService.Object, mockMapper.Object);
+            var controller = new UserController(mockUserService.Object, mockMapper.Object, mockLogger.Object);
             var userId = Guid.NewGuid().ToString();
 
             var updateUserModel = new UpdateUserModel
@@ -130,8 +134,9 @@ namespace E_Games.Tests
             // Arrange
             var mockUserService = new Mock<IUserService>();
             var mockMapper = new Mock<IMapper>();
+            var mockLogger = new Mock<ILogger<UserController>>();
 
-            var controller = new UserController(mockUserService.Object, mockMapper.Object);
+            var controller = new UserController(mockUserService.Object, mockMapper.Object, mockLogger.Object);
 
             var userId = Guid.NewGuid().ToString();
             var updateUserModel = new UpdateUserModel
@@ -154,14 +159,10 @@ namespace E_Games.Tests
             mockUserService.Setup(s => s.UpdateProfileAsync(It.IsAny<string>(), It.IsAny<UpdateUserModelDto>()))
                            .ThrowsAsync(new ApiExceptionBase(StatusCodes.Status404NotFound, "User not found"));
 
-            // Act
-            var result = await controller.UpdateProfileAsync(updateUserModel);
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<ApiExceptionBase>(() => controller.UpdateProfileAsync(updateUserModel));
 
-            // Assert
-            var statusCodeResult = Assert.IsType<ObjectResult>(result);
-
-            Assert.Equal(StatusCodes.Status404NotFound, statusCodeResult.StatusCode);
-            Assert.Equal("User not found", statusCodeResult.Value);
+            Assert.Equal("User not found", exception.Message);
         }
 
         [Fact]
@@ -170,8 +171,9 @@ namespace E_Games.Tests
             // Arrange
             var mockUserService = new Mock<IUserService>();
             var mockMapper = new Mock<IMapper>();
+            var mockLogger = new Mock<ILogger<UserController>>();
 
-            var controller = new UserController(mockUserService.Object, mockMapper.Object);
+            var controller = new UserController(mockUserService.Object, mockMapper.Object, mockLogger.Object);
             var userId = Guid.NewGuid().ToString();
 
             var updatePasswordModel = new UpdatePasswordModel
@@ -206,13 +208,14 @@ namespace E_Games.Tests
             // Arrange
             var mockUserService = new Mock<IUserService>();
             var mockMapper = new Mock<IMapper>();
+            var mockLogger = new Mock<ILogger<UserController>>();
 
-            var controller = new UserController(mockUserService.Object, mockMapper.Object);
+            var controller = new UserController(mockUserService.Object, mockMapper.Object, mockLogger.Object);
 
             var userId = Guid.NewGuid().ToString();
             var updatePasswordModel = new UpdatePasswordModel
             {
-                CurrentPassword = "OldPassword",
+                CurrentPassword = "IncorrectPassword",
                 NewPassword = "NewPassword"
             };
 
@@ -229,14 +232,10 @@ namespace E_Games.Tests
             mockUserService.Setup(s => s.UpdatePasswordAsync(userId, It.IsAny<UpdatePasswordModelDto>()))
                            .ThrowsAsync(new ApiExceptionBase(StatusCodes.Status400BadRequest, "Current password is not correct"));
 
-            // Act
-            var result = await controller.UpdatePasswordAsync(updatePasswordModel);
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<ApiExceptionBase>(() => controller.UpdatePasswordAsync(updatePasswordModel));
 
-            // Assert
-            var objectResult = Assert.IsType<ObjectResult>(result);
-
-            Assert.Equal(StatusCodes.Status400BadRequest, objectResult.StatusCode);
-            Assert.Equal("Current password is not correct", objectResult.Value);
+            Assert.Equal("Current password is not correct", exception.Message);
         }
     }
 }
