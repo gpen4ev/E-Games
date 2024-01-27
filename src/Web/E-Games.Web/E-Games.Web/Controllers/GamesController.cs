@@ -35,7 +35,7 @@ namespace E_Games.Web.Controllers
         {
             var searchGamesDto = await _gameService.SearchGamesAsync(term, limit, offset);
             var searchGamesViewModel = _mapper.Map<List<SearchGame>>(searchGamesDto);
-            // emptyModel ??
+
             return Ok(searchGamesViewModel);
         }
     }

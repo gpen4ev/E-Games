@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using E_Games.Common.DTOs;
+﻿using E_Games.Common.DTOs;
 using E_Games.Data.Data;
 using E_Games.Web.Exceptions;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +9,7 @@ namespace E_Games.Services.E_Games.Services
     {
         private readonly ApplicationDbContext _context;
 
-        public GameService(ApplicationDbContext context, IMapper mapper)
-        {
-            _context = context;
-        }
+        public GameService(ApplicationDbContext context) => _context = context;
 
         public async Task<List<PlatformPopularityDto>> GetTopPlatformsAsync() => await _context.Products
                 .GroupBy(p => p.Platform)
