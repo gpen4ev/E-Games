@@ -10,6 +10,10 @@ namespace E_Games.Web.Mapping
         {
             CreateMap<UpdateUserModel, UpdateUserModelDto>();
             CreateMap<UpdatePasswordModel, UpdatePasswordModelDto>();
+
+            CreateMap<PlatformPopularityDto, PlatformPopularity>();
+
+            CreateMap<SearchGameDto, SearchGame>();
         }
     }
 }
