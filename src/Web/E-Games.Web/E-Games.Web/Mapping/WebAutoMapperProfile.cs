@@ -14,6 +14,11 @@ namespace E_Games.Web.Mapping
             CreateMap<PlatformPopularityDto, PlatformPopularity>();
 
             CreateMap<SearchGameDto, SearchGame>();
+
+            CreateMap<FullProductInfoDto, FullProductInfoModel>();
+
+            CreateMap<CreateProductDto, CreateProducModel>();
+            CreateMap<CreateProducModel, CreateProductDto>();
         }
     }
 }

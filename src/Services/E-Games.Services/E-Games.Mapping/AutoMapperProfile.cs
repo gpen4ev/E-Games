@@ -13,6 +13,11 @@ namespace E_Games.Web.Mapping
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName))
                 .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
                 .ForMember(dest => dest.AddressDelivery, opt => opt.MapFrom(src => src.AddressDelivery));
+
+            CreateMap<Product, FullProductInfoDto>();
+
+            CreateMap<CreateProductDto, Product>();
+            CreateMap<Product, CreateProductDto>();
         }
     }
 }
