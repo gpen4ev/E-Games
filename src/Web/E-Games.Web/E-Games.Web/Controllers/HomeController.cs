@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace E_Games.Web.Controllers
 {
+    [ApiController]
     [Route("api/[controller]")]
-    public class HomeController : Controller
+    public class HomeController : ControllerBase
     {
         private readonly ILogger<HomeController> _logger;
 
@@ -13,12 +14,18 @@ namespace E_Games.Web.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Home Page.
+        /// </summary>
         [HttpGet("/")]
         public string Index()
         {
             return "Welcome to the Home page!";
         }
 
+        /// <summary>
+        /// Get Info page restricted to Admins only.
+        /// </summary>
         [Authorize(Roles = "Admin")]
         [HttpGet("/Home/GetInfo")]
         public string GetInfo()

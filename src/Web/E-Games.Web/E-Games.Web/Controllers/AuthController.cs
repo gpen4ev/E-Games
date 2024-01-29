@@ -24,6 +24,22 @@ namespace E_Games.Web.Controllers
             _emailSender = emailSender;
         }
 
+        /// <summary>
+        /// Signs In a user.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /SignIn
+        ///     {
+        ///        "Email": "user@example.com",
+        ///        "Password": "User123!"     
+        ///     }
+        /// </remarks>
+        /// <param name="model">SignModel object</param>
+        /// <returns>Returns a status message</returns>
+        /// <response code="200">Sign in successful</response>
+        /// <response code="401">Invalid email or password</response> 
         [HttpPost("signIn")]
         [AllowAnonymous]
         public async Task<IActionResult> SignInAsync([FromBody] SignModel model)
@@ -48,6 +64,22 @@ namespace E_Games.Web.Controllers
             return Unauthorized(new { Message = "Invalid email or password" });
         }
 
+        /// <summary>
+        /// Signs Up a user.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /SignUp
+        ///     {
+        ///        "Email": "user@example.com",
+        ///        "Password": "User123!"     
+        ///     }
+        /// </remarks>
+        /// <param name="model">SignModel object</param>
+        /// <returns>Returns a status message</returns>
+        /// <response code="200">Sign up successful</response>
+        /// <response code="400">Invalid email or password</response> 
         [HttpPost("signUp")]
         [AllowAnonymous]
         public async Task<IActionResult> SignUpAsync([FromBody] SignModel model)
@@ -85,6 +117,12 @@ namespace E_Games.Web.Controllers
             return BadRequest(new { Errors = result.Errors.Select(e => e.Description) });
         }
 
+        /// <summary>
+        /// User email confirmation.
+        /// </summary>
+        /// <returns>Returns no content.</returns>
+        /// <response code="200">Returns no content</response>
+        /// <response code="400">If the password is not updated successfully</response> 
         [HttpGet("emailConfirm")]
         [AllowAnonymous]
         public async Task<IActionResult> EmailConfirmAsync(string userId, string token)
