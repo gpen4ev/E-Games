@@ -23,6 +23,11 @@ namespace E_Games.Web.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Retrieves the user profile.
+        /// </summary>
+        /// <returns>Returns user profile details.</returns>
+        /// <response code="200">Returns user profile details</response>
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> UserProfile()
@@ -35,6 +40,23 @@ namespace E_Games.Web.Controllers
             return Ok(userProfile);
         }
 
+        /// <summary>
+        /// Updates the user profile.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     PUT /UserProfile
+        ///     {
+        ///        "username": "user123",
+        ///        "phoneNumber": "123-123-123",
+        ///        "addressDelivery": "123 Street Name"
+        ///     }
+        /// </remarks>
+        /// <param name="model">UpdateUserModel object</param>
+        /// <returns>Returns a status message</returns>
+        /// <response code="200">Profile updated successfully</response>
+        /// <response code="400">If the model is not valid</response> 
         [HttpPut]
         [Authorize]
         public async Task<IActionResult> UpdateProfileAsync([FromBody] UpdateUserModel model)
@@ -55,6 +77,22 @@ namespace E_Games.Web.Controllers
 
         }
 
+        /// <summary>
+        /// Updates the user's password.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     PATCH /password
+        ///     {
+        ///        "currentPassword": "Password1!",
+        ///        "newPassword": "Password12!"
+        ///     }
+        /// </remarks>
+        /// <param name="model">UpdatePasswordModel object</param>
+        /// <returns>Returns a no content status message </returns>
+        /// <response code="204">Password updated successfully</response>
+        /// <response code="400">If the model is not valid</response>
         [HttpPatch("password")]
         [Authorize]
         public async Task<IActionResult> UpdatePasswordAsync([FromBody] UpdatePasswordModel model)

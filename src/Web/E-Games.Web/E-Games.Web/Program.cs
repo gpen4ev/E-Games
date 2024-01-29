@@ -78,6 +78,7 @@ namespace E_Games.Web
             builder.Services.AddSingleton<IValidateOptions<SmtpSettings>, SmtpConfigurationValidation>();
             builder.Services.AddTransient<IEmailSender, EmailSender>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IGameService, GameService>();
 
             builder.Services.AddSwaggerGen(options =>
             {

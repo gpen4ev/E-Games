@@ -15,7 +15,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Data\E-Games.Data\E-Games.Data.csproj" />
-    <ProjectReference Include="..\..\E-Games.Common\E-Games.Common.csproj" />
     <ProjectReference Include="..\..\Web\E-Games.Web\E-Games.Common\E-Games.Common.csproj" />
   </ItemGroup>
 
