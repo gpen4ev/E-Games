@@ -19,6 +19,9 @@ namespace E_Games.Web.Mapping
 
             CreateMap<CreateProductDto, CreateProducModel>();
             CreateMap<CreateProducModel, CreateProductDto>();
+
+            CreateMap<UpdateProductDto, UpdateProductModel>();
+            CreateMap<UpdateProductModel, UpdateProductDto>();
         }
     }
 }

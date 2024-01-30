@@ -70,5 +70,45 @@ namespace E_Games.Services.E_Games.Services
 
             return _mapper.Map<CreateProductDto>(product);
         }
+
+        public async Task<UpdateProductDto> UpdateProductAsync(UpdateProductDto model)
+        {
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == model.Id);
+
+            if (product == null)
+            {
+                ErrorResponseHelper.RaiseError(ErrorMessage.NotFound);
+            }
+
+            /*product!.Name = model.Name;
+            product.Logo = model.Logo;
+            product.Background = model.Background;
+            product.Platform = model.Platform;
+            product.TotalRating = model.TotalRating;
+            product.Genre = model.Genre;
+            */
+
+            _mapper.Map(model, product);
+
+            _context.Products.Update(product!);
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<UpdateProductDto>(product);
+        }
+
+        public async Task<bool> DeleteProductAsync(int id)
+        {
+            var product = await _context.Products.FindAsync(id);
+
+            if (product == null)
+            {
+                return false;
+            }
+
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
     }
 }

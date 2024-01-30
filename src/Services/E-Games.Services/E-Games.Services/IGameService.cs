@@ -11,5 +11,9 @@ namespace E_Games.Services.E_Games.Services
         Task<FullProductInfoDto> GetProductByIdAsync(int id);
 
         Task<CreateProductDto> CreateProductAsync(CreateProductDto model);
+
+        Task<UpdateProductDto> UpdateProductAsync(UpdateProductDto model);
+
+        Task<bool> DeleteProductAsync(int id);
     }
 }

@@ -1,18 +1,18 @@
 ﻿using E_Games.Data.Data.Enums;
 
-namespace E_Games.Web.ViewModels
+namespace E_Games.Common.DTOs
 {
-    public class CreateProducModel
+    public class UpdateProductDto
     {
+        public int Id { get; set; }
+
         public string? Name { get; set; }
 
-        public IFormFile? Logo { get; set; }
+        public string? Logo { get; set; }
 
-        public IFormFile? Background { get; set; }
+        public string? Background { get; set; }
 
         public Platforms Platform { get; set; }
-
-        public DateTime DateCreated { get; set; }
 
         public int TotalRating { get; set; }
 
