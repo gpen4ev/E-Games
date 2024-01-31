@@ -1,23 +1,20 @@
 ﻿using E_Games.Data.Data.Enums;
-using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 
-namespace E_Games.Common.DTOs
+namespace E_Games.Web.ViewModels
 {
-    public class UpdateProductDto
+    public class CreateProductModel
     {
-        public int Id { get; set; }
-
+        [Required]
         public string? Name { get; set; }
-
-        public string? Logo { get; set; }
-
-        public string? Background { get; set; }
 
         public IFormFile? LogoFile { get; set; }
 
         public IFormFile? BackgroundImageFile { get; set; }
 
         public Platforms Platform { get; set; }
+
+        public DateTime DateCreated { get; set; }
 
         public int TotalRating { get; set; }
 

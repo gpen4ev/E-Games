@@ -1,5 +1,4 @@
 ﻿using E_Games.Data.Data.Enums;
-using System.Text.Json.Serialization;
 
 namespace E_Games.Web.ViewModels
 {
@@ -8,12 +7,6 @@ namespace E_Games.Web.ViewModels
         public int Id { get; set; }
 
         public string? Name { get; set; }
-
-        [JsonIgnore]
-        public string? Logo { get; set; }
-
-        [JsonIgnore]
-        public string? Background { get; set; }
 
         public IFormFile? LogoFile { get; set; }
 
@@ -24,5 +17,11 @@ namespace E_Games.Web.ViewModels
         public int TotalRating { get; set; }
 
         public string? Genre { get; set; }
+
+        public Rating Rating { get; set; }
+
+        public double Price { get; set; }
+
+        public int Count { get; set; }
     }
 }

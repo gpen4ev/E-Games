@@ -17,8 +17,10 @@ namespace E_Games.Web.Mapping
 
             CreateMap<FullProductInfoDto, FullProductInfoModel>();
 
-            CreateMap<CreateProductDto, CreateProducModel>();
-            CreateMap<CreateProducModel, CreateProductDto>();
+            CreateMap<CreateProductDto, CreateProductModel>();
+            CreateMap<CreateProductModel, CreateProductDto>()
+                .ForMember(dest => dest.LogoFile, opt => opt.MapFrom(src => src.LogoFile))
+                .ForMember(dest => dest.BackgroundImageFile, opt => opt.MapFrom(src => src.BackgroundImageFile));
 
             CreateMap<UpdateProductDto, UpdateProductModel>();
             CreateMap<UpdateProductModel, UpdateProductDto>();

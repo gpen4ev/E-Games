@@ -16,12 +16,13 @@ namespace E_Games.Web.Mapping
 
             CreateMap<Product, FullProductInfoDto>();
 
-            CreateMap<CreateProductDto, Product>();
+            CreateMap<CreateProductDto, Product>()
+                .ForMember(dest => dest.Logo, opt => opt.MapFrom(src => src.Logo))
+                .ForMember(dest => dest.Background, opt => opt.MapFrom(src => src.Background));
             CreateMap<Product, CreateProductDto>();
 
             CreateMap<UpdateProductDto, Product>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-
             CreateMap<Product, UpdateProductDto>();
         }
     }
