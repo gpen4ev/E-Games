@@ -7,5 +7,13 @@ namespace E_Games.Services.E_Games.Services
         Task<List<PlatformPopularityDto>> GetTopPlatformsAsync();
 
         Task<List<SearchGameDto>> SearchGamesAsync(string term, int limit, int offset);
+
+        Task<FullProductInfoDto> GetProductByIdAsync(int id);
+
+        Task<CreateProductDto> CreateProductAsync(CreateProductDto model);
+
+        Task<UpdateProductDto> UpdateProductAsync(UpdateProductDto model);
+
+        Task<bool> DeleteProductAsync(int id);
     }
 }

@@ -1,21 +1,27 @@
 ﻿using E_Games.Data.Data.Enums;
 using System.ComponentModel.DataAnnotations;
 
-namespace E_Games.Data.Data.Models
+namespace E_Games.Web.ViewModels
 {
-    public class Product
+    /// <summary>
+    /// Create Product model
+    /// </summary>
+    public class CreateProductModel
     {
-        public int Id { get; set; }
-
+        /// <summary>
+        /// Name of a product.
+        /// Name is a required field
+        /// </summary>
+        /// <example>FIFA 2024</example>
         [Required]
-        [StringLength(100)]
         public string? Name { get; set; }
 
-        [Required]
-        [EnumDataType(typeof(Platforms))]
+        public IFormFile? LogoFile { get; set; }
+
+        public IFormFile? BackgroundImageFile { get; set; }
+
         public Platforms Platform { get; set; }
 
-        [Required]
         public DateTime DateCreated { get; set; }
 
         public int TotalRating { get; set; }
@@ -23,10 +29,6 @@ namespace E_Games.Data.Data.Models
         public string? Genre { get; set; }
 
         public Rating Rating { get; set; }
-
-        public string? Logo { get; set; }
-
-        public string? Background { get; set; }
 
         public double Price { get; set; }
 

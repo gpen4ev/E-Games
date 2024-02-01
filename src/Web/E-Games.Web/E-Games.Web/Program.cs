@@ -1,3 +1,4 @@
+using CloudinaryDotNet;
 using E_Games.Data.Data;
 using E_Games.Data.Data.Models;
 using E_Games.Services.E_Games.Services;
@@ -108,6 +109,16 @@ namespace E_Games.Web
             });
 
             builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
+
+            var cloudinarySettings = builder.Configuration.GetSection("Cloudinary");
+
+            builder.Services.AddSingleton(new Cloudinary(new Account(
+                cloudinarySettings["CloudName"],
+                cloudinarySettings["ApiKey"],
+                cloudinarySettings["ApiSecret"]
+            )));
+
+            builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 
             var app = builder.Build();
 
