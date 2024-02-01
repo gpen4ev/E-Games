@@ -115,7 +115,6 @@ namespace E_Games.Web
             string cloudName = Environment.GetEnvironmentVariable("CLOUDINARY_CLOUD_NAME") ?? cloudinarySettings["CloudName"]!;
             string apiKey = Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY") ?? cloudinarySettings["ApiKey"]!;
             string apiSecret = Environment.GetEnvironmentVariable("CLOUDINARY_API_SECRET") ?? cloudinarySettings["ApiSecret"]!;
-            // todo: add launchSetting.json to .gitignore
 
             builder.Services.AddSingleton(new Cloudinary(new Account(cloudName, apiKey, apiSecret)));
 

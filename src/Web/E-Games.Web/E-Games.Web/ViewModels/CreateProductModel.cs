@@ -3,8 +3,16 @@ using System.ComponentModel.DataAnnotations;
 
 namespace E_Games.Web.ViewModels
 {
+    /// <summary>
+    /// Create Product model
+    /// </summary>
     public class CreateProductModel
     {
+        /// <summary>
+        /// Name of a product.
+        /// Name is a required field
+        /// </summary>
+        /// <example>FIFA 2024</example>
         [Required]
         public string? Name { get; set; }
 

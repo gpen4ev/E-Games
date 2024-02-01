@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using E_Games.Common.DTOs;
+using E_Games.Data.Data.Enums;
 using E_Games.Services.E_Games.Services;
 using E_Games.Web.Controllers;
 using E_Games.Web.ViewModels;
@@ -105,6 +106,7 @@ namespace E_Games.Tests
 
             // Assert
             var createdResult = Assert.IsType<CreatedResult>(result);
+
             Assert.Equal(productModel, createdResult.Value);
         }
 
@@ -119,6 +121,80 @@ namespace E_Games.Tests
 
             // Assert
             Assert.IsType<BadRequestObjectResult>(result);
+        }
+
+        [Fact]
+        public async Task UpdateProductAsync_ReturnsBadRequest_WhenModelStateIsInvalid()
+        {
+            // Arrange
+            var model = new UpdateProductModel();
+            _controller.ModelState.AddModelError("TestError", "Test error message");
+
+            // Act
+            var result = await _controller.UpdateProductAsync(model);
+
+            // Assert
+            Assert.IsType<BadRequestObjectResult>(result);
+        }
+
+        [Fact]
+        public async Task UpdateProductAsync_ReturnsUpdatedProduct_WhenUpdateIsSuccessful()
+        {
+            // Arrange
+            var updateModel = new UpdateProductModel
+            {
+                Id = 1,
+                Name = "Updated Game",
+                TotalRating = 5,
+                Genre = "Adventure",
+                Platform = Platforms.PC,
+            };
+
+            var updatedDto = new UpdateProductDto
+            {
+                Id = 1,
+                Name = "Updated Game",
+                TotalRating = 5,
+                Genre = "Adventure",
+                Platform = Platforms.PC
+            };
+
+            var updatedViewModel = new UpdateProductModel
+            {
+                Id = 1,
+                Name = "Updated Game",
+                TotalRating = 5,
+                Genre = "Adventure",
+                Platform = Platforms.PC
+            };
+
+            _mockMapper.Setup(m => m.Map<UpdateProductDto>(It.IsAny<UpdateProductModel>())).Returns(updatedDto);
+            _mockGameService.Setup(s => s.UpdateProductAsync(It.IsAny<UpdateProductDto>())).ReturnsAsync(updatedDto);
+            _mockMapper.Setup(m => m.Map<UpdateProductModel>(It.IsAny<UpdateProductDto>())).Returns(updatedViewModel);
+
+            // Act
+            var result = await _controller.UpdateProductAsync(updateModel);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+
+            Assert.Equal(updatedViewModel, okResult.Value);
+        }
+
+
+        [Fact]
+        public async Task DeleteProduct_ReturnsNoContentResult_WhenProductIsDeleted()
+        {
+            // Arrange
+            int productId = 1;
+
+            _mockGameService.Setup(service => service.DeleteProductAsync(productId)).ReturnsAsync(true);
+
+            // Act
+            var result = await _controller.DeleteProduct(productId);
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
         }
     }
 }

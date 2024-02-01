@@ -113,7 +113,7 @@ namespace E_Games.Web.Controllers
         /// <response code="404">If the product is not found</response>
         [HttpPut]
         [Consumes("multipart/form-data")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateProductAsync([FromForm] UpdateProductModel model)
         {
             if (!ModelState.IsValid)

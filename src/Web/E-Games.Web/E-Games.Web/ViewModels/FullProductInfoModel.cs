@@ -2,6 +2,9 @@
 
 namespace E_Games.Web.ViewModels
 {
+    /// <summary>
+    /// Get full information for a product model
+    /// </summary>
     public class FullProductInfoModel
     {
         public int Id { get; set; }

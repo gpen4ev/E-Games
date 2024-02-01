@@ -2,6 +2,9 @@
 
 namespace E_Games.Web.ViewModels
 {
+    /// <summary>
+    /// Update Product model
+    /// </summary>
     public class UpdateProductModel
     {
         public int Id { get; set; }
