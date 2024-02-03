@@ -3,7 +3,9 @@ using E_Games.Common.DTOs;
 using E_Games.Data.Data;
 using E_Games.Data.Data.Models;
 using E_Games.Web.Exceptions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace E_Games.Services.E_Games.Services
 {
@@ -12,11 +14,13 @@ namespace E_Games.Services.E_Games.Services
         private readonly ApplicationDbContext _context;
         private readonly ICloudinaryService _cloudinaryService;
         private readonly IMapper _mapper;
-        public GameService(ApplicationDbContext context, ICloudinaryService cloudinaryService, IMapper mapper)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public GameService(ApplicationDbContext context, ICloudinaryService cloudinaryService, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _cloudinaryService = cloudinaryService;
             _mapper = mapper;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<List<PlatformPopularityDto>> GetTopPlatformsAsync() => await _context.Products
@@ -140,6 +144,103 @@ namespace E_Games.Services.E_Games.Services
             await _context.SaveChangesAsync();
 
             return true;
+        }
+
+        public async Task<EditRatingDto> UpdateRatingAsync(EditRatingDto model)
+        {
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Name == model.GameName);
+            if (product == null)
+            {
+                ErrorResponseHelper.RaiseError(ErrorMessage.NotFound, "Game not found");
+            }
+
+            var userId = this.GetCurrentUserId();
+            var productRating = await _context.ProductRatings
+                .FirstOrDefaultAsync(pr => pr.ProductId == product!.Id && pr.UserId == userId);
+
+            if (productRating == null)
+            {
+                productRating = new ProductRating()
+                {
+                    ProductId = product!.Id,
+                    UserId = userId,
+                    Rating = model.NewRating,
+                };
+
+                _context.ProductRatings.Add(productRating);
+            }
+            else
+            {
+                productRating.Rating = model.NewRating;
+            }
+
+            await _context.SaveChangesAsync();
+
+            await UpdateTotalRating(product!.Name!);
+
+            var editRatingDto = _mapper.Map<EditRatingDto>(productRating);
+
+            return editRatingDto;
+        }
+
+        public async Task<bool> RemoveRatingAsync(string gameName, string userId)
+        {
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Name == gameName);
+            if (product == null)
+            {
+                return false;
+            }
+
+            var rating = await _context.ProductRatings.FirstOrDefaultAsync(
+                pr => pr.ProductId == product.Id && pr.UserId == Guid.Parse(userId));
+
+            if (rating == null)
+            {
+                return false;
+            }
+
+            _context.ProductRatings.Remove(rating);
+            await _context.SaveChangesAsync();
+
+            await UpdateTotalRating(product.Name!);
+
+            return true;
+        }
+
+        private Guid GetCurrentUserId()
+        {
+            if (_httpContextAccessor.HttpContext != null
+                && _httpContextAccessor.HttpContext.User.Identity!.IsAuthenticated)
+            {
+                var identity = _httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
+                if (identity != null)
+                {
+                    var userIdClaim = identity.FindFirst(ClaimTypes.NameIdentifier);
+                    if (userIdClaim != null)
+                    {
+                        return Guid.Parse(userIdClaim.Value);
+                    }
+                }
+            }
+
+            ErrorResponseHelper.RaiseError(ErrorMessage.BadRequest, "User is not authenticated or user ID claim is not found");
+            return Guid.Empty;
+        }
+
+        private async Task UpdateTotalRating(string gameName)
+        {
+            var product = await _context.Products
+                .FirstOrDefaultAsync(p => p.Name == gameName);
+
+            if (product != null)
+            {
+                var totalRating = await _context.ProductRatings
+                    .Where(pr => pr.ProductId == product.Id)
+                    .AverageAsync(pr => (double?)pr.Rating) ?? 0.0;
+
+                product.TotalRating = (int)Math.Round(totalRating);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

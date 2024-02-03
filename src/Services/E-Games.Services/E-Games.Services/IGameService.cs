@@ -15,5 +15,9 @@ namespace E_Games.Services.E_Games.Services
         Task<UpdateProductDto> UpdateProductAsync(UpdateProductDto model);
 
         Task<bool> DeleteProductAsync(int id);
+
+        Task<EditRatingDto> UpdateRatingAsync(EditRatingDto model);
+
+        Task<bool> RemoveRatingAsync(string gameName, string userId);
     }
 }

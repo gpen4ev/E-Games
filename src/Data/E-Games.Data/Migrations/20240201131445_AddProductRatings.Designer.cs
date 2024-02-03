@@ -4,6 +4,7 @@ using E_Games.Data.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace E_Games.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240201131445_AddProductRatings")]
+    partial class AddProductRatings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -83,8 +86,6 @@ namespace E_Games.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Age");
-
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -114,7 +115,7 @@ namespace E_Games.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Genre")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Logo")
                         .HasColumnType("nvarchar(max)");
@@ -140,13 +141,9 @@ namespace E_Games.Data.Migrations
 
                     b.HasIndex("DateCreated");
 
-                    b.HasIndex("Genre");
-
                     b.HasIndex("Name");
 
                     b.HasIndex("Platform");
-
-                    b.HasIndex("Price");
 
                     b.HasIndex("TotalRating");
 
@@ -166,11 +163,9 @@ namespace E_Games.Data.Migrations
 
                     b.HasKey("ProductId", "UserId");
 
-                    b.HasIndex("Rating");
-
                     b.HasIndex("UserId");
 
-                    b.ToTable("ProductRatings");
+                    b.ToTable("ProductRating");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>

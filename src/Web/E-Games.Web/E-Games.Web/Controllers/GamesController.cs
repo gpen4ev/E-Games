@@ -4,6 +4,7 @@ using E_Games.Services.E_Games.Services;
 using E_Games.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace E_Games.Web.Controllers
 {
@@ -141,6 +142,37 @@ namespace E_Games.Web.Controllers
         public async Task<IActionResult> DeleteProduct(int id)
         {
             await _gameService.DeleteProductAsync(id);
+
+            return NoContent();
+        }
+
+        [HttpPost("rating")]
+        //[Authorize]
+        public async Task<IActionResult> UpdateRating([FromBody] EditRatingModel model)
+        {
+            var ratingDto = _mapper.Map<EditRatingDto>(model);
+            var updatedRating = await _gameService.UpdateRatingAsync(ratingDto);
+            var updatedRatingViewModel = _mapper.Map<EditRatingModel>(updatedRating);
+
+            if (updatedRating == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(updatedRatingViewModel);
+        }
+
+        [HttpDelete("rating")]
+        //[Authorize]
+        public async Task<IActionResult> RemoveRating(string gameName)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _gameService.RemoveRatingAsync(gameName, userId!);
+
+            if (!result)
+            {
+                return NotFound();
+            }
 
             return NoContent();
         }

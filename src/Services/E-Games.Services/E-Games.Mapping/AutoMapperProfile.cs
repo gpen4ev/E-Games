@@ -24,6 +24,13 @@ namespace E_Games.Web.Mapping
             CreateMap<UpdateProductDto, Product>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<Product, UpdateProductDto>();
+
+            CreateMap<Product, EditRatingDto>();
+            CreateMap<EditRatingDto, Product>();
+
+            CreateMap<ProductRating, EditRatingDto>()
+                .ForMember(dest => dest.GameName, opt => opt.MapFrom(src => src.Product!.Name))
+                .ForMember(dest => dest.NewRating, opt => opt.MapFrom(src => src.Rating));
         }
     }
 }
