@@ -207,6 +207,49 @@ namespace E_Games.Services.E_Games.Services
             return true;
         }
 
+        public async Task<PagedResult<FullProductInfoDto>> GetProductsAsync(ProductQueryParameters queryParams)
+        {
+            var query = _context.Products.AsQueryable();
+
+            if (queryParams.Genres.Any())
+            {
+                query = query.Where(p => queryParams.Genres.Contains(p.Genre!));
+            }
+
+            query = ApplyAgeRangeFilter(query, queryParams.AgeRange);
+
+            query = queryParams.SortBy.ToLower() switch
+            {
+                "price" => queryParams.SortOrder.ToLower() == "asc" ? query
+                    .OrderBy(p => p.Price) : query
+                    .OrderByDescending(p => p.Price),
+
+                "rating" => queryParams.SortOrder.ToLower() == "asc" ? query
+                    .OrderBy(p => p.TotalRating) : query
+                    .OrderByDescending(p => p.TotalRating),
+
+                _ => query
+            };
+
+            var totalItems = await query.CountAsync();
+
+            var products = await query
+                .Skip((queryParams.Page - 1) * queryParams.PageSize)
+                .Take(queryParams.PageSize)
+                .ToListAsync();
+
+            var dto = _mapper.Map<List<FullProductInfoDto>>(products);
+
+            return new PagedResult<FullProductInfoDto>
+            {
+                Items = dto,
+                CurrentPage = queryParams.Page,
+                PageSize = queryParams.PageSize,
+                TotalItems = totalItems,
+                TotalPages = (int)Math.Ceiling(totalItems / (double)queryParams.PageSize)
+            };
+        }
+
         private Guid GetCurrentUserId()
         {
             if (_httpContextAccessor.HttpContext != null
@@ -241,6 +284,24 @@ namespace E_Games.Services.E_Games.Services
                 product.TotalRating = (int)Math.Round(totalRating);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        private IQueryable<Product> ApplyAgeRangeFilter(IQueryable<Product> query, string ageRange)
+        {
+            int? minAge = ageRange switch
+            {
+                "6+" => 6,
+                "12+" => 12,
+                "18+" => 18,
+                _ => null,
+            }; // from db?
+
+            if (minAge.HasValue)
+            {
+                query = query.Where(p => p.Ratings.Any(r => r.User!.Age >= minAge.Value));
+            }
+
+            return query;
         }
     }
 }

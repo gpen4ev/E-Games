@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using E_Games.Common.DTOs;
 using E_Games.Services.E_Games.Services;
+using E_Games.Web.Infrastructure.Filters;
 using E_Games.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -175,6 +176,15 @@ namespace E_Games.Web.Controllers
             }
 
             return NoContent();
+        }
+
+        [HttpGet("list")]
+        [ValidateSortFilterParamsAttribute]
+        public async Task<IActionResult> GetProducts([FromQuery] ProductQueryParameters queryParams)
+        {
+            var result = await _gameService.GetProductsAsync(queryParams);
+
+            return Ok(result);
         }
     }
 }
