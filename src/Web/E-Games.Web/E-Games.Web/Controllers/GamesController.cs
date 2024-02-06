@@ -140,44 +140,66 @@ namespace E_Games.Web.Controllers
         /// <response code="404">If the product is not found</response>
         [HttpDelete("id/{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteProduct(int id)
+        public async Task<IActionResult> DeleteProductAsync(int id)
         {
             await _gameService.DeleteProductAsync(id);
 
             return NoContent();
         }
 
+        /// <summary>
+        /// Updates an existing product rating.
+        /// </summary>
+        /// <param name="model">The product rating model for update.</param>
+        /// <returns>The updated product rating model.</returns>
+        /// <response code="200">Returns the updated product rating</response>
+        /// <response code="400">If the model is not valid</response>
+        /// <response code="404">If the product is not found</response>
         [HttpPost("rating")]
         //[Authorize]
-        public async Task<IActionResult> UpdateRating([FromBody] EditRatingModel model)
+        public async Task<IActionResult> UpdateRatingAsync([FromBody] EditRatingModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("UpdateRatingAsync called with invalid model state.");
+                return BadRequest(ModelState);
+            }
+
             var ratingDto = _mapper.Map<EditRatingDto>(model);
             var updatedRating = await _gameService.UpdateRatingAsync(ratingDto);
             var updatedRatingViewModel = _mapper.Map<EditRatingModel>(updatedRating);
 
-            if (updatedRating == null)
-            {
-                return NotFound();
-            }
-
             return Ok(updatedRatingViewModel);
         }
 
+
+        /// <summary>
+        /// Removes a product rating.
+        /// </summary>
+        /// <returns>No content if the removing is successful.</returns>
+        /// <response code="204">Product removed successfully</response>
+        /// <response code="404">If the product rating is not updated</response>
         [HttpDelete("rating")]
         //[Authorize]
-        public async Task<IActionResult> RemoveRating(string gameName)
+        public async Task<IActionResult> RemoveRatingAsync(string gameName)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var result = await _gameService.RemoveRatingAsync(gameName, userId!);
 
             if (!result)
             {
+                _logger.LogWarning("RemoveRatingAsync was not able to update rating.");
                 return NotFound();
             }
 
             return NoContent();
         }
 
+        /// <summary>
+        /// Retrieves platforms based on query parameters.
+        /// </summary>
+        /// <returns>A list of platforms basad on query parameters.</returns>
+        /// <response code="200">Returns platforms basad on query parameters</response>
         [HttpGet("list")]
         [ValidateSortFilterParamsAttribute]
         public async Task<IActionResult> GetProducts([FromQuery] ProductQueryParameters queryParams)

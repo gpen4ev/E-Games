@@ -15,7 +15,11 @@ namespace E_Games.Services.E_Games.Services
         private readonly ICloudinaryService _cloudinaryService;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public GameService(ApplicationDbContext context, ICloudinaryService cloudinaryService, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+
+        public GameService(ApplicationDbContext context,
+            ICloudinaryService cloudinaryService,
+            IMapper mapper,
+            IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _cloudinaryService = cloudinaryService;
@@ -238,11 +242,11 @@ namespace E_Games.Services.E_Games.Services
                 .Take(queryParams.PageSize)
                 .ToListAsync();
 
-            var dto = _mapper.Map<List<FullProductInfoDto>>(products);
+            var fullProductInfoDto = _mapper.Map<List<FullProductInfoDto>>(products);
 
             return new PagedResult<FullProductInfoDto>
             {
-                Items = dto,
+                Items = fullProductInfoDto,
                 CurrentPage = queryParams.Page,
                 PageSize = queryParams.PageSize,
                 TotalItems = totalItems,
@@ -294,7 +298,7 @@ namespace E_Games.Services.E_Games.Services
                 "12+" => 12,
                 "18+" => 18,
                 _ => null,
-            }; // from db?
+            };
 
             if (minAge.HasValue)
             {
