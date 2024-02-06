@@ -31,5 +31,7 @@ namespace E_Games.Data.Data.Models
         public double Price { get; set; }
 
         public int Count { get; set; }
+
+        public virtual ICollection<ProductRating> Ratings { get; set; } = new List<ProductRating>();
     }
 }

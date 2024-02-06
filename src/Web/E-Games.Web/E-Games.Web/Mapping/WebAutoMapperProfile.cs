@@ -24,6 +24,9 @@ namespace E_Games.Web.Mapping
 
             CreateMap<UpdateProductDto, UpdateProductModel>();
             CreateMap<UpdateProductModel, UpdateProductDto>();
+
+            CreateMap<EditRatingDto, EditRatingModel>();
+            CreateMap<EditRatingModel, EditRatingDto>();
         }
     }
 }

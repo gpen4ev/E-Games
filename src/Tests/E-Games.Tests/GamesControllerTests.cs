@@ -4,9 +4,11 @@ using E_Games.Data.Data.Enums;
 using E_Games.Services.E_Games.Services;
 using E_Games.Web.Controllers;
 using E_Games.Web.ViewModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
+using System.Security.Claims;
 
 namespace E_Games.Tests
 {
@@ -191,10 +193,177 @@ namespace E_Games.Tests
             _mockGameService.Setup(service => service.DeleteProductAsync(productId)).ReturnsAsync(true);
 
             // Act
-            var result = await _controller.DeleteProduct(productId);
+            var result = await _controller.DeleteProductAsync(productId);
 
             // Assert
             Assert.IsType<NoContentResult>(result);
+        }
+
+        [Fact]
+        public async Task UpdateRatingAsync_InvalidModelState_ReturnsBadRequest()
+        {
+            // Arrange
+            var errorMessage = "error message";
+            _controller.ModelState.AddModelError("key", errorMessage);
+
+            var model = new EditRatingModel();
+
+            // Act
+            var result = await _controller.UpdateRatingAsync(model);
+
+            // Assert
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+            var errorObject = badRequestResult.Value as SerializableError;
+
+            Assert.NotNull(errorObject);
+            Assert.True(errorObject.ContainsKey("key"));
+            var errorMessages = errorObject["key"] as string[];
+            Assert.NotNull(errorMessages);
+            Assert.Contains(errorMessage, errorMessages);
+        }
+
+        [Fact]
+        public async Task UpdateRatingAsync_ValidModel_ReturnsUpdatedRating()
+        {
+            // Arrange
+            var model = new EditRatingModel
+            {
+                GameName = "Grand Theft Auto V",
+                NewRating = 5
+            };
+
+            var ratingDto = new EditRatingDto
+            {
+                GameName = "Grand Theft Auto V",
+                NewRating = 5
+            };
+
+            var updatedRatingDto = new EditRatingDto
+            {
+                GameName = "Grand Theft Auto V",
+                NewRating = 5
+            };
+
+            _mockMapper.Setup(m => m.Map<EditRatingDto>(It.IsAny<EditRatingModel>())).Returns(ratingDto);
+            _mockGameService.Setup(s => s.UpdateRatingAsync(It.IsAny<EditRatingDto>())).ReturnsAsync(updatedRatingDto);
+            _mockMapper.Setup(m => m.Map<EditRatingModel>(It.IsAny<EditRatingDto>())).Returns(model);
+
+            // Act
+            var result = await _controller.UpdateRatingAsync(model);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            Assert.IsType<EditRatingModel>(okResult.Value);
+
+            _mockGameService.Verify(s => s.UpdateRatingAsync(It.IsAny<EditRatingDto>()), Times.Once);
+            _mockMapper.Verify(m => m.Map<EditRatingDto>(It.IsAny<EditRatingModel>()), Times.Once);
+            _mockMapper.Verify(m => m.Map<EditRatingModel>(It.IsAny<EditRatingDto>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task RemoveRatingAsync_RatingExists_ReturnsNoContent()
+        {
+            // Arrange
+            var gameName = "Existing Game";
+            var testUserId = Guid.NewGuid().ToString();
+            this.SimulateUserAuthentication(testUserId);
+
+            _mockGameService.Setup(s => s.RemoveRatingAsync(gameName, testUserId)).ReturnsAsync(true);
+
+            // Act
+            var result = await _controller.RemoveRatingAsync(gameName);
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+        }
+
+        [Fact]
+        public async Task RemoveRatingAsync_RatingNotFound_ReturnsNotFound()
+        {
+            // Arrange
+            var gameName = "Non-Existing Game";
+            var testUserId = Guid.NewGuid().ToString();
+            this.SimulateUserAuthentication(testUserId);
+
+            _mockGameService.Setup(s => s.RemoveRatingAsync(gameName, testUserId)).ReturnsAsync(false);
+
+            // Act
+            var result = await _controller.RemoveRatingAsync(gameName);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task GetProducts_FilterByGenre_ReturnsFilteredProducts()
+        {
+            // Arrange
+            var queryParams = new ProductQueryParameters { Genres = new List<string> { "Strategy" } };
+            var expectedProducts = this.SetupExpectedProducts();
+
+            _mockGameService.Setup(s => s.GetProductsAsync(It.Is<ProductQueryParameters>(p => p.Genres.Contains("Strategy"))))
+                            .ReturnsAsync(expectedProducts);
+
+            // Act
+            var result = await _controller.GetProducts(queryParams);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var returnValue = Assert.IsType<PagedResult<FullProductInfoDto>>(okResult.Value);
+
+            Assert.All(returnValue.Items!, item => Assert.Equal("Strategy", item.Genre));
+        }
+
+        [Fact]
+        public async Task GetProducts_SortByRatingDesc_ReturnsCorrectlySortedProducts()
+        {
+            // Arrange
+            var queryParams = new ProductQueryParameters { SortBy = "Rating", SortOrder = "desc" };
+            var expectedProducts = this.SetupExpectedProducts();
+
+            _mockGameService.Setup(s => s.GetProductsAsync(It.IsAny<ProductQueryParameters>()))
+                            .ReturnsAsync(expectedProducts);
+
+            // Act
+            var result = await _controller.GetProducts(queryParams);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+
+            var returnValue = Assert.IsType<PagedResult<FullProductInfoDto>>(okResult.Value);
+            var ratings = returnValue.Items!.Select(i => i.Rating).ToList();
+
+            Assert.True(ratings.SequenceEqual(ratings.OrderByDescending(x => x)),
+                "Products are not sorted by rating in descending order.");
+        }
+
+        private void SimulateUserAuthentication(string userId)
+        {
+            var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, userId),
+            }, "mock"));
+
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext { User = user }
+            };
+        }
+
+        private PagedResult<FullProductInfoDto> SetupExpectedProducts()
+        {
+            return new PagedResult<FullProductInfoDto>
+            {
+                CurrentPage = 1,
+                PageSize = 2,
+                TotalItems = 2,
+                TotalPages = 1,
+                Items = new List<FullProductInfoDto>
+                {
+                    new FullProductInfoDto { Name = "Game 1", Genre = "Strategy", Rating = Rating.FiveStars },
+                    new FullProductInfoDto { Name = "Game 2", Genre = "Strategy", Rating = Rating.FourStars }
+                }
+            };
         }
     }
 }
