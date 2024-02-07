@@ -14,6 +14,10 @@ namespace E_Games.Data.Data
 
         public DbSet<ProductRating> ProductRatings { get; set; }
 
+        public DbSet<Order> Orders { get; set; }
+
+        public DbSet<OrderItem> OrderItems { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<ProductRating>()
@@ -28,6 +32,21 @@ namespace E_Games.Data.Data
                 .HasOne(pr => pr.User)
                 .WithMany(u => u.Ratings)
                 .HasForeignKey(p => p.UserId);
+
+            builder.Entity<Order>()
+                .HasOne<ApplicationUser>(o => o.User)
+                .WithMany(u => u.Orders)
+                .HasForeignKey(o => o.UserId);
+
+            builder.Entity<OrderItem>()
+                .HasOne<Order>(oi => oi.Order)
+                .WithMany(o => o.OrderItems)
+                .HasForeignKey(oi => oi.OrderId);
+
+            builder.Entity<OrderItem>()
+                .HasOne<Product>(oi => oi.Product)
+                .WithMany()
+                .HasForeignKey(oi => oi.ProductId);
 
             builder.Entity<Product>()
                 .HasIndex(p => p.Name);
@@ -52,6 +71,14 @@ namespace E_Games.Data.Data
 
             builder.Entity<ProductRating>()
                 .HasIndex(p => p.Rating);
+
+            builder.Entity<OrderItem>()
+                .Property(oi => oi.Price)
+                .HasPrecision(14, 4);
+
+            builder.Entity<Order>()
+                .Property(o => o.Status)
+                .HasConversion<string>();
 
             base.OnModelCreating(builder);
         }

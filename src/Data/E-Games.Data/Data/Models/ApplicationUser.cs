@@ -9,5 +9,7 @@ namespace E_Games.Data.Data.Models
         public byte Age { get; set; }
 
         public virtual ICollection<ProductRating> Ratings { get; set; } = new List<ProductRating>();
+
+        public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
     }
 }
