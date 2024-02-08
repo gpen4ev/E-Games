@@ -156,7 +156,7 @@ namespace E_Games.Web.Controllers
         /// <response code="400">If the model is not valid</response>
         /// <response code="404">If the product is not found</response>
         [HttpPost("rating")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> UpdateRatingAsync([FromBody] EditRatingModel model)
         {
             if (!ModelState.IsValid)
@@ -180,7 +180,7 @@ namespace E_Games.Web.Controllers
         /// <response code="204">Product removed successfully</response>
         /// <response code="404">If the product rating is not updated</response>
         [HttpDelete("rating")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> RemoveRatingAsync(string gameName)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

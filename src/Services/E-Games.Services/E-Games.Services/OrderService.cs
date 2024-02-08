@@ -107,7 +107,7 @@ namespace E_Games.Services.E_Games.Services
 
             if (orderItem!.Price != 0)
             {
-                throw new InvalidOperationException("Can only change the amount for unpaid (free) products.");
+                ErrorResponseHelper.RaiseError(ErrorMessage.BadRequest, "Can only change the amount for unpaid (free) products.");
             }
 
             orderItem.Quantity = dto.NewAmount;
@@ -115,6 +115,42 @@ namespace E_Games.Services.E_Games.Services
             await _context.SaveChangesAsync();
 
             return _mapper.Map<OrderDto>(order);
+        }
+
+        public async Task DeleteOrderItemsAsync(IEnumerable<int> itemIds, Guid userId)
+        {
+            var orderItems = await _context.OrderItems
+                .Where(oi => itemIds.Contains(oi.OrderId) && oi.Order!.UserId == userId)
+                .ToListAsync();
+
+            if (!orderItems.Any())
+            {
+                ErrorResponseHelper.RaiseError(ErrorMessage.BadRequest, "No matching order items found for deletion.");
+            }
+
+            _context.OrderItems.RemoveRange(orderItems);
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task BuyProductsAsync(Guid userId)
+        {
+            var ordersToBuy = await _context.Orders
+                .Where(o => o.UserId == userId && o.Status == OrderStatus.Pending)
+                .ToListAsync();
+
+            if (!ordersToBuy.Any())
+            {
+                ErrorResponseHelper.RaiseError(ErrorMessage.BadRequest, "There are no pending orders to buy.");
+            }
+
+            foreach (var order in ordersToBuy)
+            {
+                // Delivered is used as Bought/Completed
+                order.Status = OrderStatus.Delivered;
+            }
+
+            await _context.SaveChangesAsync();
         }
     }
 }

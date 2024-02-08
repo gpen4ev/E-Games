@@ -11,5 +11,9 @@ namespace E_Games.Services.E_Games.Services
         Task<OrderDto> GetOrderByIdAsync(int orderId, Guid userId);
 
         Task<OrderDto> UpdateOrderItemAmountAsync(UpdateOrderItemDto dto, Guid userId);
+
+        Task DeleteOrderItemsAsync(IEnumerable<int> itemIds, Guid userId);
+
+        Task BuyProductsAsync(Guid userId);
     }
 }
