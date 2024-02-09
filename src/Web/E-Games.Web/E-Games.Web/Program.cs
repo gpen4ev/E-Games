@@ -80,6 +80,7 @@ namespace E_Games.Web
             builder.Services.AddTransient<IEmailSender, EmailSender>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IGameService, GameService>();
+            builder.Services.AddScoped<IOrderService, OrderService>();
 
             builder.Services.AddSwaggerGen(options =>
             {

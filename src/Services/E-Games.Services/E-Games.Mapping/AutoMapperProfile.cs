@@ -32,9 +32,14 @@ namespace E_Games.Web.Mapping
                 .ForMember(dest => dest.GameName, opt => opt.MapFrom(src => src.Product!.Name))
                 .ForMember(dest => dest.NewRating, opt => opt.MapFrom(src => src.Rating));
 
-
-
             CreateMap<FullProductInfoDto, Product>();
+
+            // Mapping from Order to OrderViewModel
+            CreateMap<Order, OrderDto>()
+                .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.OrderItems));
+
+            CreateMap<OrderItem, OrderItemDto>()
+                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product!.Name));
         }
     }
 }

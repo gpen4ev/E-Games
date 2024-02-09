@@ -21,8 +21,9 @@ namespace E_Games.Tests
 
         public GameServiceTests()
         {
+            var dbName = $"TestDatabase_{Guid.NewGuid()}";
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseInMemoryDatabase(databaseName: "TestDatabase")
+                .UseInMemoryDatabase(databaseName: dbName)
                 .Options;
 
             _context = new ApplicationDbContext(options);
@@ -44,20 +45,20 @@ namespace E_Games.Tests
         private void SeedDatabase()
         {
             var products = new List<Product>
-        {
-            new Product { Id = 1, Name = "The Witcher 3: Wild Hunt", Platform = Platforms.PC },
-            new Product { Id = 2, Name = "Red Dead Redemption 2", Platform = Platforms.Nintendo },
-            new Product { Id = 3, Name = "Grand Theft Auto V", Platform = Platforms.Xbox },
-            new Product { Id = 4, Name = "The Legend of Zelda", Platform = Platforms.Xbox },
-            new Product { Id = 5, Name = "Dark Souls III", Platform = Platforms.PC },
-            new Product { Id = 6, Name = "The Elder Scrolls V: Skyrim", Platform = Platforms.Nintendo },
-            new Product { Id = 7, Name = "Sekiro: Shadows Die Twice", Platform = Platforms.Xbox },
-            new Product { Id = 8, Name = "Bloodborne", Platform = Platforms.PC },
-            new Product { Id = 9, Name = "Mass Effect 2", Platform = Platforms.Xbox },
-            new Product { Id = 10, Name = "Hollow Knight", Platform = Platforms.Mobile },
-            new Product { Id = 11, Name = "The Last of Us Part II", Platform = Platforms.PC },
-            new Product { Id = 51, Name = "Fifa 2026", Platform = Platforms.PC },
-        };
+            {
+                new Product { Id = 1, Name = "The Witcher 3: Wild Hunt", Platform = Platforms.PC },
+                new Product { Id = 2, Name = "Red Dead Redemption 2", Platform = Platforms.Nintendo },
+                new Product { Id = 3, Name = "Grand Theft Auto V", Platform = Platforms.Xbox },
+                new Product { Id = 4, Name = "The Legend of Zelda", Platform = Platforms.Xbox },
+                new Product { Id = 5, Name = "Dark Souls III", Platform = Platforms.PC },
+                new Product { Id = 6, Name = "The Elder Scrolls V: Skyrim", Platform = Platforms.Nintendo },
+                new Product { Id = 7, Name = "Sekiro: Shadows Die Twice", Platform = Platforms.Xbox },
+                new Product { Id = 8, Name = "Bloodborne", Platform = Platforms.PC },
+                new Product { Id = 9, Name = "Mass Effect 2", Platform = Platforms.Xbox },
+                new Product { Id = 10, Name = "Hollow Knight", Platform = Platforms.Mobile },
+                new Product { Id = 11, Name = "The Last of Us Part II", Platform = Platforms.PC },
+                new Product { Id = 51, Name = "Fifa 2026", Platform = Platforms.PC },
+            };
 
             _context.Products.AddRange(products);
             _context.SaveChanges();
@@ -459,6 +460,5 @@ namespace E_Games.Tests
 
             Assert.Equal(sortedRatings, ratings);
         }
-
     }
 }
