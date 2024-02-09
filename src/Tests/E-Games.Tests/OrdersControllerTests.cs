@@ -159,5 +159,90 @@ namespace E_Games.Tests
             // Assert
             Assert.IsType<NotFoundObjectResult>(result);
         }
+
+        [Fact]
+        public async Task UpdateOrderItemAsync_ReturnsOkResult_WithUpdatedOrder()
+        {
+            // Arrange
+            var updateOrderItemDto = new UpdateOrderItemDto
+            {
+                ProductId = 1,
+                OrderId = 1,
+                NewAmount = 3
+            };
+
+            var updatedOrderDto = new OrderDto
+            {
+                OrderId = 1,
+                CreationDate = DateTime.UtcNow,
+                Status = OrderStatus.Pending,
+                Items = new List<OrderItemDto>
+                {
+                    new OrderItemDto
+                    {
+                        ProductId = 1,
+                        Amount = 3,
+                        Price = 15.00m
+                    }
+                }
+            };
+
+            _mockOrderService.Setup(x => x.UpdateOrderItemAmountAsync(updateOrderItemDto, It.IsAny<Guid>()))
+                             .ReturnsAsync(updatedOrderDto);
+
+            SetupControllerContext();
+
+            // Act
+            var result = await _controller.UpdateOrderItemAsync(updateOrderItemDto);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var returnValue = Assert.IsType<OrderDto>(okResult.Value);
+
+            Assert.Equal(updatedOrderDto, returnValue);
+        }
+
+        [Fact]
+        public async Task UpdateOrderItemAsync_ReturnsBadRequest_WhenModelStateIsInvalid()
+        {
+            // Arrange
+            _controller.ModelState.AddModelError("error", "test error");
+
+            var updateOrderItemDto = new UpdateOrderItemDto();
+
+            // Act
+            var result = await _controller.UpdateOrderItemAsync(updateOrderItemDto);
+
+            // Assert
+            Assert.IsType<BadRequestObjectResult>(result);
+        }
+
+        [Fact]
+        public async Task DeleteOrderItemsAsync_ReturnsNoContent_WhenItemsDeletedSuccessfully()
+        {
+            // Arrange
+            var itemIds = new List<int> { 1, 2, 3 };
+
+            // Act
+            var result = await _controller.DeleteOrderItemsAsync(itemIds);
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+            _mockOrderService.Verify(s => s.DeleteOrderItemsAsync(itemIds, It.IsAny<Guid>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task BuyProductsAsync_ReturnsNoContent_WhenSuccessful()
+        {
+            // Arrange
+            // from the constructor setup
+
+            // Act
+            var result = await _controller.BuyProductsAsync();
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+            _mockOrderService.Verify(s => s.BuyProductsAsync(It.IsAny<Guid>()), Times.Once);
+        }
     }
 }
