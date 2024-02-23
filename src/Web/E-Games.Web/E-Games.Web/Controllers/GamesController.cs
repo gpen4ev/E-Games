@@ -4,6 +4,7 @@ using E_Games.Services.E_Games.Services;
 using E_Games.Web.Infrastructure.Filters;
 using E_Games.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -11,6 +12,7 @@ namespace E_Games.Web.Controllers
 {
     [ApiController]
     [Route("api/games")]
+    [EnableCors("AllowAll")]
     public class GamesController : ControllerBase
     {
         private readonly IGameService _gameService;

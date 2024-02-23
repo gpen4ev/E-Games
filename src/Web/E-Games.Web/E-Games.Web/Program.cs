@@ -75,6 +75,16 @@ namespace E_Games.Web
             builder.Services.AddHealthChecks();
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                });
+            });
+
             builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
             builder.Services.AddSingleton<IValidateOptions<SmtpSettings>, SmtpConfigurationValidation>();
             builder.Services.AddTransient<IEmailSender, EmailSender>();
@@ -156,6 +166,8 @@ namespace E_Games.Web
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseCors("AllowAll");
 
             app.UseAuthentication();
             app.UseAuthorization();
