@@ -56,9 +56,10 @@ Follow these steps to set up the project:
 
 Update the `DefaultConnection` string in the `ConnectionStrings` section of `appsettings.json` to match your SQL Server setup:
 
-"""
-"ConnectionStrings": { "DefaultConnection": "Server=your_server_name;Database=E-Games;User Id=your_username;Password=your_password;" }
-"""
+```sh
+"ConnectionStrings": 
+    { "DefaultConnection": "Server=your_server_name;Database=E-Games;User Id=your_username;Password=your_password;" }
+```
 
 ## Logging
 
@@ -66,17 +67,27 @@ The application uses Serilog for logging. Logs are written to separate files bas
 
 Here is an example of what the `Logging` section might look like:
 
-"""
-"Logging": { "LogLevel": { "Default": "Information", "Microsoft": "Warning", "Microsoft.Hosting.Lifetime": "Information" } }
-"""
+```sh
+"Logging": { 
+    "LogLevel": { 
+        "Default": "Information", 
+        "Microsoft.AspNetCore": "Warning", 
+        "Microsoft.Hosting.Lifetime": "Information" 
+    }
+}
+```
 
 ## Cloudinary Integration
 
 To manage images using Cloudinary, add your credentials in the `Cloudinary` section of `appsettings.json`:
 
-"""
-"Cloudinary": { "CloudName": "your_cloud_name", "ApiKey": "your_api_key", "ApiSecret": "your_api_secret" }
-"""
+```sh
+"Cloudinary": { 
+    "CloudName": "your_cloud_name", 
+    "ApiKey": "your_api_key", 
+    "ApiSecret": "your_api_secret" 
+}
+```
 
 ## API Endpoints
 
