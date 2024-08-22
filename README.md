@@ -52,47 +52,31 @@ Follow these steps to set up the project:
    ```bash
    dotnet build
 
-## Configuration
-
-The application uses `appsettings.json` for configuration. Be sure to update the following sections according to your environment:
-
-### Connection String
+## Connection String
 
 Update the `DefaultConnection` string in the `ConnectionStrings` section of `appsettings.json` to match your SQL Server setup:
 
-\```
-"ConnectionStrings": {
-  "DefaultConnection": "Server=your_server_name;Database=E-Games;User Id=your_username;Password=your_password;"
-}
-\```
+"""
+"ConnectionStrings": { "DefaultConnection": "Server=your_server_name;Database=E-Games;User Id=your_username;Password=your_password;" }
+"""
 
-### Logging
+## Logging
 
 The application uses Serilog for logging. Logs are written to separate files based on log levels in the `logs/` directory. The logging configuration can be found in the `Logging` section of `appsettings.json`.
 
 Here is an example of what the `Logging` section might look like:
 
-\```
-"Logging": {
-  "LogLevel": {
-    "Default": "Information",
-    "Microsoft": "Warning",
-    "Microsoft.Hosting.Lifetime": "Information"
-  }
-}
-\```
+"""
+"Logging": { "LogLevel": { "Default": "Information", "Microsoft": "Warning", "Microsoft.Hosting.Lifetime": "Information" } }
+"""
 
-### Cloudinary Integration
+## Cloudinary Integration
 
 To manage images using Cloudinary, add your credentials in the `Cloudinary` section of `appsettings.json`:
 
-\```
-"Cloudinary": {
-  "CloudName": "your_cloud_name",
-  "ApiKey": "your_api_key",
-  "ApiSecret": "your_api_secret"
-}
-\```
+"""
+"Cloudinary": { "CloudName": "your_cloud_name", "ApiKey": "your_api_key", "ApiSecret": "your_api_secret" }
+"""
 
 ## API Endpoints
 
