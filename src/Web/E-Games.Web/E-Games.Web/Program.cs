@@ -104,11 +104,6 @@ namespace E_Games.Web
                     {
                         Name = "Example Contact",
                         Url = new Uri("https://example.com/contact")
-                    },
-                    License = new OpenApiLicense
-                    {
-                        Name = "Example License",
-                        Url = new Uri("https://example.com/license")
                     }
                 });
 
